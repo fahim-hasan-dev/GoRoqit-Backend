@@ -12,6 +12,7 @@ import { MessageRoutes } from '../app/modules/message/message.routes'
 import { categoryRoutes } from '../app/modules/category/category.route'
 import { DashboardRoutes } from '../app/modules/dashboard/dashboard.route'
 import { newsletterRoutes } from '../app/modules/newsletter/newsletter.route'
+import { SpendstreamRoutes } from '../app/modules/spendstream/spendstream.route'
 
 const router = express.Router()
 
@@ -29,6 +30,7 @@ const apiRoutes: { path: string; route: Router }[] = [
   { path: '/category', route: categoryRoutes },
   { path: '/dashboard', route: DashboardRoutes },
   { path: '/newsletter', route: newsletterRoutes },
+  { path: '/rewards', route: SpendstreamRoutes },
 ]
 
 apiRoutes.forEach(route => {

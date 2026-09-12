@@ -36,7 +36,7 @@ export const userUpdateSchema = z.object({
 export const UniversalProfileUpdateSchema = z.object({
   body: z.object({
     // Common fields that might overlap
-    bio: z.string().max(500, "Bio cannot exceed 500 characters").optional(),
+    bio: z.string().max(5000, "Bio cannot exceed 500 characters").optional(),
     location: z.string().optional(),
     phone: z.string().optional(),
     mobile: z.string().optional(),
