@@ -192,8 +192,8 @@ const getRewardsSsoUrl = async (
   // Construct destination URL only after successful Spendstream verification
   const whitelabelUrl = config.spendstream.whitelabelUrl.replace(/\/+$/, '')
   const redirectUrl = ssoToken
-    ? `${whitelabelUrl}/?token=${encodeURIComponent(ssoToken)}&uid=${encodeURIComponent(uid)}`
-    : `${whitelabelUrl}/?uid=${encodeURIComponent(uid)}`
+    ? `${whitelabelUrl}/login/${encodeURIComponent(ssoToken)}`
+    : `${whitelabelUrl}/login`
 
   return {
     url: redirectUrl,

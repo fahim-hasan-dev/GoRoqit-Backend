@@ -65,6 +65,6 @@ export default {
     apiKey: process.env.SPENDSTREAM_API_KEY || 'SSCUE-gpudge-ltvvx1m-iea5dvc5-kz5wgay4-gnls',
     secretKey: process.env.SPENDSTREAM_SECRET_KEY || 'ho19ci-8t2i36c-s8ei4-ne25-3gs9',
     baseUrl: process.env.SPENDSTREAM_BASE_URL || 'https://staging-api.spendstream.io/v2',
-    whitelabelUrl: process.env.SPENDSTREAM_WHITELABEL_URL || 'https://goroqit.stg.spendstream.co',
+    whitelabelUrl: process.env.SPENDSTREAM_WHITELABEL_URL || 'https://goroqit.stg.spendstream.com',
   },
 }
