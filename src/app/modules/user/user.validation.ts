@@ -2,15 +2,73 @@ import { z } from "zod";
 import { USER_ROLES, USER_STATUS } from "./user.interface";
 import { EducationSchema, PortfolioSchema, SalaryExpectationUpdateSchema, WorkExperienceUpdateSchema } from "../applicantProfile/applicantProfile.validation";
 
+const DISPOSABLE_EMAIL_DOMAINS = new Set([
+  'mailinator.com',
+  'guerrillamail.com',
+  '10minutemail.com',
+  'tempmail.com',
+  'sharklasers.com',
+  'trashmail.com',
+  'yopmail.com',
+  'dispostable.com',
+  'temp-mail.org',
+  'fakeinbox.com',
+  'mohmal.com',
+  'getairmail.com',
+  'crazymailing.com',
+  'throwawaymail.com',
+  'mailcatch.com',
+  'maildrop.cc',
+])
+
+const nameRegex = /^[a-zA-ZÀ-ÿ\u00C0-\u024F\u0600-\u06FF\s.'-]+$/
+
+export const safeNameValidation = z
+  .string({ required_error: 'Name is required' })
+  .trim()
+  .min(2, 'Name must be at least 2 characters')
+  .max(60, 'Name cannot exceed 60 characters')
+  .refine(val => nameRegex.test(val), {
+    message: 'Name can only contain alphabetic letters, spaces, dots, and hyphens.',
+  })
+  .refine(
+    val => !/https?:\/\/|bit\.ly|t\.me|wa\.me|www\.|\.com|\.org|\.net|\.io/i.test(val),
+    {
+      message: 'Name cannot contain web links or URLs.',
+    },
+  )
+  .refine(
+    val => !/bonus|lira|free spins|\bfs\b|casino|betting|oyna|bekliyor/i.test(val),
+    {
+      message: 'Name contains disallowed terms.',
+    },
+  )
+
+export const safeEmailValidation = z
+  .string({ required_error: 'Email is required' })
+  .email('Invalid email format')
+  .toLowerCase()
+  .trim()
+  .refine(
+    email => {
+      const domain = email.split('@')[1]
+      return !domain || !DISPOSABLE_EMAIL_DOMAINS.has(domain.toLowerCase())
+    },
+    {
+      message: 'Temporary or disposable email domains are not allowed.',
+    },
+  )
+
 export const userSignupSchema = z.object({
- body:z.object({
-  email: z.string().email().toLowerCase().trim(),
-  name: z.string(),
+ body: z.object({
+  email: safeEmailValidation,
+  name: safeNameValidation,
   companyName: z.string().optional(),
   role: z.nativeEnum(USER_ROLES),
   image: z.string().optional(),
   password: z.string().min(6),
   coordinates: z.array(z.number()).optional(),
+  honeypot: z.string().optional(),
  })
 });
 
@@ -20,8 +78,8 @@ export const userLoginSchema = z.object({
 });
 
 export const userUpdateSchema = z.object({
-  email: z.string().email().trim().toLowerCase().optional(),
-  name: z.string().optional(),
+  email: safeEmailValidation.optional(),
+  name: safeNameValidation.optional(),
   password: z.string().min(6).optional(),
   status: z.nativeEnum(USER_STATUS).optional(),
   verified: z.boolean().optional(),

@@ -7,9 +7,11 @@ import cookieParser from 'cookie-parser'
 import globalErrorHandler from './app/middleware/globalErrorHandler'
 import passport from './app/modules/auth/passport.auth/config/passport'
 import handleStripeWebhook from './stripe/handleStripeWebhook';
+import { apiRateLimiter } from './app/middleware/rateLimiter'
 
 //application
 const app = express();
+app.set('trust proxy', 1);
 
 
 const allowedOrigins = [
@@ -48,11 +50,12 @@ app.use(express.json())
 app.use(passport.initialize())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
+
 //file retrieve
 app.use(express.static('uploads'))
 
 //router
-app.use('/api/v1', router)
+app.use('/api/v1', apiRateLimiter, router)
 
 //live response
 app.get('/', (req: Request, res: Response) => {

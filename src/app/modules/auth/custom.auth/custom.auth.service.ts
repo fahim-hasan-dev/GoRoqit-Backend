@@ -151,16 +151,73 @@ const adminLogin = async (payload: ILoginData):Promise<IAuthResponse> => {
     )
   }
 
+  const { authentication, status } = isUserExist
+  const restrictionLeftAt = authentication?.restrictionLeftAt
+  const wrongLoginAttempts = authentication?.wrongLoginAttempts || 0
+
+  if (status === USER_STATUS.RESTRICTED) {
+    if (restrictionLeftAt && new Date() < new Date(restrictionLeftAt)) {
+      const remainingMinutes = Math.ceil(
+        (new Date(restrictionLeftAt).getTime() - Date.now()) / 60000,
+      )
+      throw new ApiError(
+        StatusCodes.TOO_MANY_REQUESTS,
+        `Admin account locked due to repeated failed attempts. Please try again after ${remainingMinutes} minute(s).`,
+      )
+    }
+
+    await User.findByIdAndUpdate(isUserExist._id, {
+      $set: {
+        'authentication.restrictionLeftAt': null,
+        'authentication.wrongLoginAttempts': 0,
+        status: USER_STATUS.ACTIVE,
+      },
+    })
+  }
+
   const isPasswordMatch = await AuthHelper.isPasswordMatched(
     payload.password,
     isUserExist.password as string,
   )
   if (!isPasswordMatch) {
+    const currentAttempts = wrongLoginAttempts + 1
+    const maxAttempts = 5
+
+    if (currentAttempts >= maxAttempts) {
+      const lockUntil = new Date(Date.now() + 15 * 60 * 1000)
+      await User.findByIdAndUpdate(isUserExist._id, {
+        $set: {
+          status: USER_STATUS.RESTRICTED,
+          'authentication.restrictionLeftAt': lockUntil,
+          'authentication.wrongLoginAttempts': 0,
+        },
+      })
+      throw new ApiError(
+        StatusCodes.TOO_MANY_REQUESTS,
+        'Too many failed login attempts. Admin account locked for 15 minutes.',
+      )
+    }
+
+    const remaining = maxAttempts - currentAttempts
+    await User.findByIdAndUpdate(isUserExist._id, {
+      $set: {
+        'authentication.wrongLoginAttempts': currentAttempts,
+      },
+    })
+
     throw new ApiError(
       StatusCodes.UNAUTHORIZED,
-      'Please try again with correct credentials.',
+      `Incorrect password. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining before account lockout.`,
     )
   }
+
+  // Clear failed attempts on successful login
+  await User.findByIdAndUpdate(isUserExist._id, {
+    $set: {
+      'authentication.restrictionLeftAt': null,
+      'authentication.wrongLoginAttempts': 0,
+    },
+  })
   
   //tokens 
   const tokens = AuthHelper.createToken(isUserExist._id, isUserExist.role, isUserExist.name!, isUserExist.email!)

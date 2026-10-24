@@ -1,19 +1,19 @@
 import { z } from 'zod'
+import { safeEmailValidation, safeNameValidation } from '../user/user.validation'
 
 const contactZodSchema = z.object({
   body: z.object({
-    name: z.string({
-      required_error: 'Name is required',
-    }),
-    email: z
-      .string({
-        required_error: 'Email is required',
-      })
-      .email('Invalid email format'),
+    name: safeNameValidation,
+    email: safeEmailValidation,
     phone: z.string().optional(),
-    message: z.string({
-      required_error: 'Message is required',
-    }),
+    message: z
+      .string({
+        required_error: 'Message is required',
+      })
+      .trim()
+      .min(5, 'Message must be at least 5 characters')
+      .max(1500, 'Message cannot exceed 1500 characters'),
+    honeypot: z.string().optional(),
   }),
 })
 

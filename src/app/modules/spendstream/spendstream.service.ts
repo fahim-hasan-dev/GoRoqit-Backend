@@ -190,7 +190,14 @@ const getRewardsSsoUrl = async (
   })
 
   // Construct destination URL only after successful Spendstream verification
-  const whitelabelUrl = config.spendstream.whitelabelUrl.replace(/\/+$/, '')
+  const rawWhitelabelUrl = config.spendstream.whitelabelUrl
+  if (!rawWhitelabelUrl) {
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Spendstream whitelabel URL is not configured in environment.',
+    )
+  }
+  const whitelabelUrl = rawWhitelabelUrl.replace(/\/+$/, '')
   const redirectUrl = ssoToken
     ? `${whitelabelUrl}/login/${encodeURIComponent(ssoToken)}`
     : `${whitelabelUrl}/login`

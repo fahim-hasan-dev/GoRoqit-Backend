@@ -16,12 +16,6 @@ export default {
     client_secret: process.env.GOOGLE_CLIENT_SECRET,
     callback_url: process.env.GOOGLE_CALLBACK_URL,
   },
-  aws: {
-    access_key_id: process.env.AWS_ACCESS_KEY_ID,
-    secret_access_key: process.env.AWS_SECRET_ACCESS_KEY,
-    region: process.env.AWS_REGION,
-    bucket_name: process.env.AWS_BUCKET_NAME,
-  },
   jwt: {
     jwt_secret: process.env.JWT_SECRET,
     jwt_expire_in: process.env.JWT_EXPIRE_IN,
@@ -30,9 +24,6 @@ export default {
     temp_jwt_secret: process.env.TEMP_JWT_SECRET,
     temp_jwt_expire_in: process.env.TEMP_JWT_EXPIRE_IN,
   },
-  application_fee: process.env.APPLICATION_FEE,
-  instant_transfer_fee: process.env.INSTANT_TRANSFER_FEE,
-  openAi_api_key: process.env.OPENAI_API_KEY,
   stripe: {
     stripeSecretKey: process.env.STRIPE_API_SECRET,
     webhookSecret: process.env.WEBHOOK_SECRET,
@@ -46,25 +37,15 @@ export default {
     host: process.env.EMAIL_HOST,
     pass: process.env.EMAIL_PASS,
   },
-  twilio: {
-    account_sid: process.env.TWILIO_ACCOUNT_SID,
-    auth_token: process.env.TWILIO_AUTH_TOKEN,
-    phone_number: process.env.TWILIO_PHONE_NUMBER,
-  },
-  cloudinary: {
-    cloudinary_name: process.env.CLOUDINARY_NAME,
-    cloudinary_api_key: process.env.CLOUDINARY_API_KEY,
-    cloudinary_secret: process.env.CLOUDINARY_SECRET,
-  },
   super_admin: {
     email: process.env.ADMIN_EMAIL,
     password: process.env.ADMIN_PASSWORD,
     name: process.env.ADMIN_NAME,
   },
   spendstream: {
-    apiKey: process.env.SPENDSTREAM_API_KEY || 'SSCUE-gpudge-ltvvx1m-iea5dvc5-kz5wgay4-gnls',
-    secretKey: process.env.SPENDSTREAM_SECRET_KEY || 'ho19ci-8t2i36c-s8ei4-ne25-3gs9',
-    baseUrl: process.env.SPENDSTREAM_BASE_URL || 'https://staging-api.spendstream.io/v2',
-    whitelabelUrl: process.env.SPENDSTREAM_WHITELABEL_URL || 'https://goroqit.stg.spendstream.com',
+    apiKey: process.env.SPENDSTREAM_API_KEY,
+    secretKey: process.env.SPENDSTREAM_SECRET_KEY,
+    baseUrl: process.env.SPENDSTREAM_BASE_URL,
+    whitelabelUrl: process.env.SPENDSTREAM_WHITELABEL_URL,
   },
 }

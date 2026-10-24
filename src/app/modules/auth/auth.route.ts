@@ -9,12 +9,16 @@ import auth, { tempAuth } from '../../middleware/auth'
 import { UserValidations } from '../user/user.validation'
 import fileUploadHandler from '../../middleware/fileUploadHandler'
 import { getSingleFilePath } from '../../../shared/getFilePath'
+import { authRateLimiter, loginRateLimiter, otpRateLimiter } from '../../middleware/rateLimiter'
+import { checkHoneypot } from '../../middleware/botProtection'
 
 const router = express.Router()
 
 router.post(
   '/signup',
-   fileUploadHandler(),
+  authRateLimiter,
+  checkHoneypot,
+  fileUploadHandler(),
   async (req, res, next) => {
     try {
       const image = getSingleFilePath(req.files, "image");
@@ -32,11 +36,13 @@ router.post(
 )
 router.post(
   '/admin-login',
+  loginRateLimiter,
   validateRequest(AuthValidations.loginZodSchema),
   CustomAuthController.adminLogin,
 )
 router.post(
   '/login',
+  loginRateLimiter,
   validateRequest(AuthValidations.loginZodSchema),
   passport.authenticate('local', { session: false }), 
   PassportAuthController.login,
@@ -55,30 +61,34 @@ router.get(
 
 router.post(
   '/verify-account',
+  otpRateLimiter,
   validateRequest(AuthValidations.verifyAccountZodSchema),
   CustomAuthController.verifyAccount,
 )
 
 router.post(
   '/custom-login',
+  loginRateLimiter,
   validateRequest(AuthValidations.loginZodSchema),
   CustomAuthController.customLogin,
 )
 
 router.post(
   '/forget-password',
+  otpRateLimiter,
   validateRequest(AuthValidations.forgetPasswordZodSchema),
   CustomAuthController.forgetPassword,
 )
 router.post(
   '/reset-password',
+  otpRateLimiter,
   validateRequest(AuthValidations.resetPasswordZodSchema),
   CustomAuthController.resetPassword,
 )
 
 router.post(
   '/resend-otp',
- 
+  otpRateLimiter,
   validateRequest(AuthValidations.resendOtpZodSchema),
   CustomAuthController.resendOtp,
 )

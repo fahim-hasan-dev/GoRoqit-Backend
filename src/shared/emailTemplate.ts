@@ -2,11 +2,21 @@
 import config from '../config'
 import { ICreateAccount, IResetPassword } from '../interfaces/emailTemplate'
 
+const sanitizeDisplayName = (name?: string): string => {
+  if (!name || typeof name !== 'string') return 'User'
+  const clean = name
+    .replace(/https?:\/\/[^\s]+/gi, '')
+    .replace(/bit\.ly\/[^\s]+/gi, '')
+    .replace(/[<>&"']/g, '')
+    .trim()
+  return clean.length >= 2 ? clean.slice(0, 50) : 'User'
+}
+
 const createAccount = (values: ICreateAccount) => {
-  console.log(values, 'values')
+  const safeName = sanitizeDisplayName(values.name)
   const data = {
     to: values.email,
-    subject: `Verify your account, ${values.name}`,
+    subject: 'Verify your account - Go Roqit',
     html: `
 <body style="margin:0; padding:0; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
       <table width="100%" cellpadding="0" cellspacing="0"
@@ -29,7 +39,7 @@ const createAccount = (values: ICreateAccount) => {
             </h1>
 
             <p style="color:#3a5a40; font-size:16px; line-height:1.6; margin-bottom:25px; text-align:center;">
-              Hey <strong>${values.name}</strong>, welcome aboard! 🎉<br>
+              Hey <strong>${safeName}</strong>, welcome aboard! 🎉<br>
               Please verify your email to activate your account.
             </p>
 
@@ -86,10 +96,10 @@ const createAccount = (values: ICreateAccount) => {
 }
 
 const resetPassword = (values: IResetPassword) => {
-  console.log(values, 'values')
+  const safeName = sanitizeDisplayName(values.name)
   const data = {
     to: values.email,
-    subject: `Reset your password, ${values.name}`,
+    subject: 'Reset your password - Go Roqit',
     html: `
     <body style="margin:0; padding:0; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
       <table width="100%" cellpadding="0" cellspacing="0"
@@ -112,7 +122,7 @@ const resetPassword = (values: IResetPassword) => {
             </h1>
 
             <p style="color:#3a5a40; font-size:16px; line-height:1.6; margin-bottom:25px; text-align:center;">
-              Hi <strong>${values.name}</strong>, 👋<br>
+              Hi <strong>${safeName}</strong>, 👋<br>
               We received a request to reset your password for your <strong>Go.Roqit</strong> account.<br>
               Use the verification code below to complete the process:
             </p>
@@ -176,12 +186,12 @@ const resendOtp = (values: {
   otp: string
   type: 'resetPassword' | 'createAccount'
 }) => {
-  console.log(values, 'values')
+  const safeName = sanitizeDisplayName(values.name)
   const isReset = values.type === 'resetPassword'
 
   const data = {
     to: values.email,
-    subject: `${isReset ? 'Password Reset' : 'Account Verification'} - New Code`,
+    subject: `${isReset ? 'Password Reset Code' : 'Verification Code'} - Go Roqit`,
     html: `
    <body style="margin:0; padding:0;  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:640px; margin:40px auto; background-color:#ffffff; border-radius:14px; overflow:hidden; box-shadow:0 5px 25px rgba(0,0,0,0.08);">
@@ -202,7 +212,7 @@ const resendOtp = (values: {
         </h1>
 
         <p style="color:#3a5a40; font-size:16px; line-height:1.6; margin-bottom:25px; text-align:center;">
-          Hi <strong>${values.name}</strong>, 👋<br>
+          Hi <strong>${safeName}</strong>, 👋<br>
           ${
             isReset
               ? 'You recently requested to reset your password for your Go.Roqit account.'

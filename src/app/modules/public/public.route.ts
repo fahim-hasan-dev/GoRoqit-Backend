@@ -5,6 +5,9 @@ import { FaqValidations, PublicValidation } from './public.validation'
 import { USER_ROLES } from '../../../enum/user'
 import auth from '../../middleware/auth'
 
+import { contactRateLimiter } from '../../middleware/rateLimiter'
+import { checkHoneypot } from '../../middleware/botProtection'
+
 const router = express.Router()
 
 router.post(
@@ -17,6 +20,8 @@ router.get('/:type', PublicController.getAllPublics)
 router.delete('/:id', PublicController.deletePublic)
 router.post(
   '/contact',
+  contactRateLimiter,
+  checkHoneypot,
   validateRequest(PublicValidation.contactZodSchema),
   PublicController.createContact,
 )

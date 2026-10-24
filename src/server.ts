@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import { Server } from 'socket.io'
 import app from './app'
 import './cornJobs/subscriptionExpirationCron';
+import './cornJobs/cleanupUnverifiedUsersCron';
 import config from './config'
 import { errorLogger, logger } from './shared/logger'
 import { socketHelper } from './helpers/socketHelper'

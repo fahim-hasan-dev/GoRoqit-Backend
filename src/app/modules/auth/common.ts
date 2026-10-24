@@ -77,47 +77,45 @@ const handleLoginLogic = async (payload: ILoginData, isUserExist: IUser):Promise
   )
 
   if (!isPasswordMatched) {
+    const currentAttempts = (wrongLoginAttempts || 0) + 1
+    const maxAttempts = 5
+
+    if (currentAttempts >= maxAttempts) {
+      const lockUntil = new Date(Date.now() + 15 * 60 * 1000)
+      await User.findByIdAndUpdate(isUserExist._id, {
+        $set: {
+          status: USER_STATUS.RESTRICTED,
+          'authentication.restrictionLeftAt': lockUntil,
+          'authentication.wrongLoginAttempts': 0,
+        },
+      })
+
+      throw new ApiError(
+        StatusCodes.TOO_MANY_REQUESTS,
+        'Too many failed login attempts. Your account has been temporarily locked for 15 minutes.',
+      )
+    }
+
+    const attemptsRemaining = maxAttempts - currentAttempts
+    await User.findByIdAndUpdate(isUserExist._id, {
+      $set: {
+        'authentication.wrongLoginAttempts': currentAttempts,
+      },
+    })
+
     throw new ApiError(
       StatusCodes.BAD_REQUEST,
-      'Incorrect password, please try again.',
+      `Incorrect password. You have ${attemptsRemaining} attempt${attemptsRemaining === 1 ? '' : 's'} remaining before your account is locked.`,
     )
   }
-
-  // if (!isPasswordMatched) {
-  //   isUserExist.authentication.wrongLoginAttempts = wrongLoginAttempts + 1
-
-  //   if (isUserExist.authentication.wrongLoginAttempts >= 5) {
-  //     isUserExist.status = USER_STATUS.RESTRICTED
-  //     isUserExist.authentication.restrictionLeftAt = new Date(
-  //       Date.now() + 10 * 60 * 1000,
-  //     ) // restriction for 10 minutes
-  //   }
-
-  //   await User.findByIdAndUpdate(isUserExist._id, {
-  //     $set: {
-  //       status: isUserExist.status,
-  //       authentication: {
-  //         restrictionLeftAt: isUserExist.authentication.restrictionLeftAt,
-  //         wrongLoginAttempts: isUserExist.authentication.wrongLoginAttempts,
-  //       },
-  //     },
-  //   })
-
-  //   throw new ApiError(
-  //     StatusCodes.BAD_REQUEST,
-  //     'Incorrect password, please try again.',
-  //   )
-  // }
 
   await User.findByIdAndUpdate(
     isUserExist._id,
     {
       $set: {
         deviceToken: payload.deviceToken,
-        authentication: {
-          restrictionLeftAt: null,
-          wrongLoginAttempts: 0,
-        },
+        'authentication.restrictionLeftAt': null,
+        'authentication.wrongLoginAttempts': 0,
       },
     },
     { new: true },
