@@ -113,6 +113,10 @@ const fileUploadHandler = () => {
   const upload = multer({
     storage: storage,
     fileFilter: filterFilter,
+    limits: {
+      fileSize: 10 * 1024 * 1024,
+      files: 5,
+    },
   }).fields([
     { name: 'image', maxCount: 3 },
     { name: 'media', maxCount: 3 },

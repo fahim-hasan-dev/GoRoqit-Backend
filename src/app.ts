@@ -8,19 +8,24 @@ import globalErrorHandler from './app/middleware/globalErrorHandler'
 import passport from './app/modules/auth/passport.auth/config/passport'
 import handleStripeWebhook from './stripe/handleStripeWebhook';
 import { apiRateLimiter } from './app/middleware/rateLimiter'
+import helmet from 'helmet'
+import mongoSanitize from 'express-mongo-sanitize'
 
 //application
 const app = express();
 app.set('trust proxy', 1);
 
-
-const allowedOrigins = [
+export const allowedOrigins = [
   'https://goroqit.com',
   'https://www.goroqit.com',   
   'http://goroqit.com',       
   'http://localhost:3000',
   'http://10.10.7.45:3000'
 ];
+
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -50,6 +55,7 @@ app.use(express.json())
 app.use(passport.initialize())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
+app.use(mongoSanitize())
 
 //file retrieve
 app.use(express.static('uploads'))

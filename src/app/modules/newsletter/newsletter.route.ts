@@ -7,7 +7,7 @@ const router = express.Router()
 
 router.post('/', newsletterController.createNewsletter)
 router.get('/', auth(USER_ROLES.ADMIN), newsletterController.getAllNewsletters)
-router.delete('/all', newsletterController.deleteAllNewsletters)
-router.delete('/:id', newsletterController.deleteNewsletter)
+router.delete('/all', auth(USER_ROLES.ADMIN), newsletterController.deleteAllNewsletters)
+router.delete('/:id', auth(USER_ROLES.ADMIN), newsletterController.deleteNewsletter)
 
 export const newsletterRoutes = router

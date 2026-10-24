@@ -1,7 +1,7 @@
 import colors from 'colors'
 import mongoose from 'mongoose'
 import { Server } from 'socket.io'
-import app from './app'
+import app, { allowedOrigins } from './app'
 import './cornJobs/subscriptionExpirationCron';
 import './cornJobs/cleanupUnverifiedUsersCron';
 import config from './config'
@@ -38,7 +38,8 @@ async function main() {
     const io = new Server(server, {
       pingTimeout: 60000,
       cors: {
-        origin: '*',
+        origin: allowedOrigins,
+        credentials: true,
       },
     })
 
