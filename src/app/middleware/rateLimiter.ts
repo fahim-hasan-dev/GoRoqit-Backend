@@ -3,9 +3,13 @@ import { StatusCodes } from 'http-status-codes'
 
 export const apiRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 300,
+  limit: 3000,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
+  skip: req => {
+    const url = req.originalUrl || req.url || ''
+    return url.includes('/api/v1/auth')
+  },
   message: {
     success: false,
     message: 'Too many requests from this IP, please try again after 15 minutes.',
@@ -15,7 +19,7 @@ export const apiRateLimiter = rateLimit({
 
 export const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 10,
+  limit: 15,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   message: {
@@ -27,7 +31,7 @@ export const authRateLimiter = rateLimit({
 
 export const loginRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 5,
+  limit: 10,
   skipSuccessfulRequests: true,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
