@@ -61,7 +61,8 @@ app.use(mongoSanitize())
 app.use(express.static('uploads'))
 
 //router
-app.use('/api/v1', apiRateLimiter, router)
+app.use('/api/v1', router)
+// app.use('/api/v1', apiRateLimiter, router)
 
 //live response
 app.get('/', (req: Request, res: Response) => {
